@@ -68,8 +68,12 @@ def execute_order_66(path):
     f_spectrum_cb = rfft(f_cb)
     x_f_spectrum_cb = rfftfreq(len(f_cb), 1/fs)
     x_f_spectrum_cb_bpm = x_f_spectrum_cb*60
-
-    bpm = np.array([x_f_spectrum_cr_bpm[np.argmax(np.abs(f_spectrum_cr))], x_f_spectrum_cg_bpm[np.argmax(np.abs(f_spectrum_cg))], x_f_spectrum_cb_bpm[np.argmax(np.abs(f_spectrum_cb))]])
+    bpm = np.array(
+        [round(x_f_spectrum_cr_bpm[np.argmax(np.abs(f_spectrum_cr))], 2), 
+         round(x_f_spectrum_cg_bpm[np.argmax(np.abs(f_spectrum_cg))], 2), 
+         round(x_f_spectrum_cb_bpm[np.argmax(np.abs(f_spectrum_cb))], 2)
+         ]
+        )
 
     #
     # All the plots below
@@ -162,6 +166,7 @@ def execute_order_66(path):
     plt.show()
 
     '''
+
     # compare: Plot stuff
     fig, axs = plt.subplots(2, 2)
     # Original signal
@@ -191,17 +196,49 @@ def execute_order_66(path):
     # Adjustments and show/save plots
     plt.subplots_adjust(hspace=0.3, wspace=0.15, left=0.05, right=0.98, bottom=0.1, top=0.95)
     # plt.savefig("filename.png", dpi=300)
+    plt.show() 
+    
+    """ plt.title("Ufiltrerte signaler")
+    plt.xlabel("Tid [S]")
+    plt.ylabel("Kamera respons [0, 255]")
+    plt.plot(t, c_r, 'r', label="Red")
+    plt.plot(t, c_g, 'g', label="Green")
+    plt.plot(t, c_b, 'b', label="Blue")
+    plt.legend(loc=1)
+    plt.savefig("r_raw_signal", dpi=300)
     plt.show()
-   
+
+    plt.title("Filtrerte signaler")
+    plt.xlabel("Tid [S]")
+    plt.ylabel("Kamera respons [0, 255]")
+    plt.plot(t, f_cr, 'r', label="Red")
+    plt.plot(t, f_cg, 'g', label="Green")
+    plt.plot(t, f_cb, 'b', label="Blue")
+    plt.legend(loc=1)
+    plt.xlim(10, 20)
+    plt.savefig("r_filtered_signal", dpi=300)
+    plt.show()
+
+    plt.title("Effektspektrum av filtrerte signaler")
+    plt.xlabel("Frekvens [Bpm]")
+    plt.ylabel("Relativ effekt [dB]")
+    plt.plot(x_f_spectrum_cr_bpm[10:len(x_spectrum_cr_bpm)//6], np.abs(f_spectrum_cr[10:len(x_spectrum_cr_bpm)//6]), 'r', label="Red")
+    plt.plot(x_f_spectrum_cg_bpm[10:len(x_spectrum_cg_bpm)//6], np.abs(f_spectrum_cg[10:len(x_spectrum_cg_bpm)//6]), 'g', label="Green")
+    plt.plot(x_f_spectrum_cb_bpm[10:len(x_spectrum_cb_bpm)//6], np.abs(f_spectrum_cb[10:len(x_spectrum_cb_bpm)//6]), 'b', label="Blue")
+    plt.legend(loc=1)
+    plt.savefig("r_filtered_spectrum", dpi=300)
+    plt.show() """
+
+    print(path, bpm)
     return bpm
 
 file_list_r = [
-    "r_1.txt",
-    "r_2.txt",
-    "r_3.txt",
-    "r_4.txt",
-    "r_5.txt"
-    ]
+    "R_SR1.txt",
+    "R_SR2.txt",
+    "R_SR3.txt",
+    "R_SR4.txt",
+    "R_SR5.txt"
+]
 
 file_list_t = [
     "mt_1c.txt",
@@ -217,21 +254,21 @@ std_r_b = np.zeros(0)
 std_t_r = np.zeros(0)
 std_t_g = np.zeros(0)
 std_t_b = np.zeros(0)
-snitt_r= np.zeros(3)
-snitt_t= np.zeros(3)
+snitt_r = np.zeros(3)
+snitt_t = np.zeros(3)
 for i in range(0, len(file_list_r)):
    bpm_r = execute_order_66(file_list_r[i])
-   bpm_t = execute_order_66(file_list_t[i])
+   # bpm_t = execute_order_66(file_list_t[i])
    std_r_r = np.append(std_r_r, bpm_r[0])
    std_r_g = np.append(std_r_g, bpm_r[1])
    std_r_b = np.append(std_r_b, bpm_r[2])
-   std_t_r = np.append(std_t_r, bpm_t[0])
+   """ std_t_r = np.append(std_t_r, bpm_t[0])
    std_t_g = np.append(std_t_g, bpm_t[1])
-   std_t_b = np.append(std_t_b, bpm_t[2])
+   std_t_b = np.append(std_t_b, bpm_t[2]) """
 
    for k in range(0,3):
        snitt_r[k] += bpm_r[k]
-       snitt_t[k] += bpm_t[k]
+       # snitt_t[k] += bpm_t[k]
 
 val_std_r_r = np.std(std_r_r)
 val_std_r_g = np.std(std_r_g)
@@ -270,4 +307,3 @@ print(std_r_b)
 print(std_t_r)
 print(std_t_g)
 print(std_t_b)
-
